@@ -1,0 +1,7 @@
+results/
+FINDINGS.md
+PLAN.md
+*.pem
+*.log
+.env
+.env.*
