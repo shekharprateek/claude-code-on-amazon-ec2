@@ -2,6 +2,10 @@
 
 [![License: MIT-0](https://img.shields.io/badge/License-MIT--0-yellow.svg)](LICENSE)
 
+> **This is sample code intended for demonstration and learning purposes only.**
+> It is not meant for production use. Review and harden all scripts, configurations,
+> and IAM permissions before using in any production or sensitive environment.
+
 Run Claude Code — Anthropic's AI coding assistant — backed by an open-source model on
 Amazon EC2. Your code stays inside your AWS account, costs are predictable, and you keep
 full control over the model.
