@@ -113,8 +113,8 @@ export G6E_KEY=~/.ssh/<your-key>.pem
 
 Or run `/install` inside Claude Code for a guided setup experience.
 
-See [SETUP-GUIDE.md](SETUP-GUIDE.md) for the full walkthrough including CloudWatch
-monitoring, spot instance setup, and cost optimization.
+See [SETUP-GUIDE.md](SETUP-GUIDE.md) for the full walkthrough including GPU monitoring,
+spot instance setup, and cost optimization.
 
 ## Cost Optimization
 
