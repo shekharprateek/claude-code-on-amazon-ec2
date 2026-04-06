@@ -5,3 +5,6 @@ PLAN.md
 *.log
 .env
 .env.*
+.scratchpad/
+__pycache__/
+*.pyc

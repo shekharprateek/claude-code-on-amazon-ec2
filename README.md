@@ -1,5 +1,7 @@
 # Claude Code on Amazon EC2 with a Self-Hosted Open-Source Model
 
+[![License: MIT-0](https://img.shields.io/badge/License-MIT--0-yellow.svg)](LICENSE)
+
 Run Claude Code — Anthropic's AI coding assistant — backed by an open-source model on
 Amazon EC2. Your code stays inside your AWS account, costs are predictable, and you keep
 full control over the model.

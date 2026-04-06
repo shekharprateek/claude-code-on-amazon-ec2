@@ -17,95 +17,69 @@ Run the following and report what is found:
 
 ```bash
 nvidia-smi
-nvcc --version
-cmake --version
-git --version
 ```
 
-If cmake or git are missing, install them:
+### 2. Install Ollama
+
+Check if Ollama is already installed:
 
 ```bash
-sudo apt-get update -qq && sudo apt-get install -y cmake ninja-build git
+ollama --version
 ```
 
-### 2. Build llama.cpp with CUDA
-
-Check if `~/llama.cpp/build/bin/llama-server` already exists. If it does, skip the build and report it is already installed.
-
-If not, clone and build:
+If not installed, install it:
 
 ```bash
-git clone https://github.com/ggml-org/llama.cpp ~/llama.cpp
-cd ~/llama.cpp
-cmake -B build -G Ninja -DGGML_CUDA=ON
-cmake --build build --config Release -j $(nproc)
+curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-Verify the build succeeded:
+### 3. Start Ollama service
+
+Ensure Ollama is running:
 
 ```bash
-~/llama.cpp/build/bin/llama-server --version
+sudo systemctl enable ollama
+sudo systemctl start ollama
 ```
 
-### 3. Check if model is already downloaded
+### 4. Pull the model
 
-Check if the Qwen model exists in the HuggingFace cache:
+Check if the model is already present:
 
 ```bash
-ls ~/.cache/huggingface/hub/ 2>/dev/null
+ollama list
 ```
 
-Report whether the model is already cached or needs to be downloaded (~22GB on first run).
-
-### 4. Start the model server
-
-Ask the user: "Start the model server now? It will download ~22GB on first run and may take several minutes. (yes/no)"
-
-If yes, start the server:
+If `qwen3.5:35b` is not listed, pull it (~22GB on first run):
 
 ```bash
-nohup ~/llama.cpp/build/bin/llama-server \
-  -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M \
-  --host 127.0.0.1 \
-  --port 8131 \
-  -ngl 999 \
-  -t 2 \
-  -c 131072 \
-  -b 512 \
-  -ub 1024 \
-  --parallel 1 \
-  -fa on \
-  --jinja \
-  --keep 1024 \
-  --cache-type-k q8_0 \
-  --cache-type-v q8_0 \
-  --swa-full \
-  --no-context-shift \
-  --reasoning off \
-  --mlock \
-  --no-mmap \
-  > /tmp/llama-server.log 2>&1 &
+ollama pull qwen3.5:35b
 ```
 
-Wait 10 seconds, then verify the server is responding:
+Report progress. This may take several minutes depending on internet speed.
+
+### 5. Verify GPU inference
+
+Send a test prompt and verify the model responds:
 
 ```bash
-curl -s http://localhost:8131/v1/models
+curl -sf --max-time 120 http://localhost:11434/api/generate \
+  -d '{"model":"qwen3.5:35b","prompt":"Reply with: ready","stream":false}'
 ```
 
-Report the model name from the response and confirm the server is ready.
+Report the response and confirm the model is working on GPU.
 
-### 5. Print connection instructions
+### 6. Print connection instructions
 
 Print the public IP of this server:
 
 ```bash
-curl -s ifconfig.me
+curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || curl -s ifconfig.me
 ```
 
 Tell the user:
 
-"GPU server setup complete. Now run `/install` on your local machine and provide this IP when prompted."
+"GPU server setup complete. Now run `/install` on your **local machine** and provide this IP when prompted."
 
 ---
 
@@ -157,7 +131,7 @@ export G6E_KEY=<key>
 Verify the tunnel is working:
 
 ```bash
-curl -s http://localhost:8131/v1/models
+curl -s http://localhost:11434/v1/models
 ```
 
 Report the model name from the response.
@@ -191,8 +165,8 @@ If the response contains "setup complete", the full chain is working.
 Print a summary of what was configured:
 
 - GPU server IP
-- SSH tunnel status
-- Model responding at localhost:8131
+- SSH tunnel status (port 11434)
+- Model responding at localhost:11434
 - Claude Code settings updated
 
 Tell the user:
