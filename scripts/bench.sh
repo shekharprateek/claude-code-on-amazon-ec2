@@ -28,6 +28,15 @@ RUNS=3
 
 export PATH="$HOME/.local/bin:$PATH"
 
+# Ensure pytest is available (needed for c2_write_tests verifier)
+if ! python3 -m pytest --version >/dev/null 2>&1; then
+    echo "[setup] pytest not found — installing..."
+    python3 -m pip install --user --quiet pytest || {
+        echo "[error] Failed to install pytest. Run: pip install pytest"
+        exit 1
+    }
+fi
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'
 BLUE='\033[0;34m'; BOLD='\033[1m'; RESET='\033[0m'
 
