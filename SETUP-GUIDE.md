@@ -1,7 +1,11 @@
-# Running Claude Code with a Self-Hosted LLM on Amazon EC2
+# Running Claude Code with a Self-Hosted LLM on Amazon EC2 (Advanced: llama.cpp)
 
-A practical guide to setting up Claude Code backed by Qwen 3.5-35B on an Amazon EC2 GPU instance,
-with AWS-specific configuration, cost optimization, and lessons learned.
+A practical guide to setting up Claude Code backed by Qwen 3.5-35B using llama.cpp on an
+Amazon EC2 GPU instance. This gives you full control over model flags and context settings.
+
+> **Looking for the simpler setup?** Use `scripts/ec2-setup.sh` instead — it installs Ollama
+> automatically and is ready in minutes. This guide covers llama.cpp for users who want
+> lower-level tuning (custom quantization, SWA caching, context length, etc.).
 
 ---
 

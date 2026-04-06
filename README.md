@@ -11,7 +11,7 @@ Your Machine
   │
   ▼
 Amazon EC2 GPU Instance (g6e.xlarge)
-  Open-source model (Qwen 3.5-35B) via llama.cpp
+  Open-source model (Qwen 3.5-35B) via Ollama
   NVIDIA L40S, 45GB VRAM — runs fully within your VPC
 ```
 
@@ -49,11 +49,12 @@ cost-effective for sustained daily use.
 
 | File | What it does |
 | --- | --- |
-| [SETUP-GUIDE.md](SETUP-GUIDE.md) | Full walkthrough with AWS-specific steps, flags, and troubleshooting |
+| [scripts/ec2-setup.sh](scripts/ec2-setup.sh) | One-shot EC2 setup: installs Ollama, pulls model, verifies GPU |
 | [scripts/tunnel.sh](scripts/tunnel.sh) | Opens and closes the SSH tunnel between your machine and EC2 |
 | [scripts/claude-local.sh](scripts/claude-local.sh) | Launches Claude Code pointed at the local model, restores config on exit |
 | [scripts/bench.sh](scripts/bench.sh) | Benchmarks local model vs Amazon Bedrock side by side |
 | [config/settings.template.json](config/settings.template.json) | Claude Code configuration template |
+| [SETUP-GUIDE.md](SETUP-GUIDE.md) | Advanced walkthrough using llama.cpp directly (more tuning control) |
 
 ## Quick Start
 
@@ -76,28 +77,23 @@ aws ec2 run-instances \
 Security group: port 22 inbound from your IP only. The model port never needs to be
 open — access is via SSH tunnel.
 
-### Step 2 — Build the model server on EC2
+### Step 2 — Set up the model server on EC2
 
-SSH in and run:
-
-```bash
-sudo apt-get update -qq && sudo apt-get install -y cmake ninja-build git
-
-git clone https://github.com/ggml-org/llama.cpp ~/llama.cpp
-cd ~/llama.cpp
-cmake -B build -G Ninja -DGGML_CUDA=ON
-cmake --build build --config Release -j $(nproc)
-```
-
-Start the model (~22GB downloads on first run):
+SSH in and run the setup script:
 
 ```bash
-nohup ~/llama.cpp/build/bin/llama-server \
-  -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M \
-  --host 127.0.0.1 --port 8131 \
-  -ngl 999 -c 131072 --reasoning off --swa-full --no-context-shift \
-  > /tmp/llama-server.log 2>&1 &
+curl -fsSL https://raw.githubusercontent.com/shekharprateek/claude-code-on-amazon-ec2/main/scripts/ec2-setup.sh | bash
 ```
+
+Or clone and run:
+
+```bash
+git clone https://github.com/shekharprateek/claude-code-on-amazon-ec2 ~/claude-code-on-amazon-ec2
+bash ~/claude-code-on-amazon-ec2/scripts/ec2-setup.sh
+```
+
+This installs Ollama, pulls Qwen 3.5-35B (~22GB on first run), and verifies the model
+is running on GPU. To use a smaller model: `MODEL=qwen3.5:7b bash ec2-setup.sh`
 
 ### Step 3 — Connect from your machine
 

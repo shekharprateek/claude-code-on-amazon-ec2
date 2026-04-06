@@ -6,7 +6,7 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/bench.sh bedrock    # Test A: Claude via Amazon Bedrock
-#   ./scripts/bench.sh local      # Test B: local model via SSH tunnel (localhost:8131)
+#   ./scripts/bench.sh local      # Test B: local model via SSH tunnel (localhost:11434)
 #   ./scripts/bench.sh both       # Run both back-to-back
 #
 # Runs 9 coding tasks against the sample/ project in this repo.
@@ -16,7 +16,7 @@ set -euo pipefail
 # Prerequisites:
 #   - Claude Code CLI installed (npm install -g @anthropic-ai/claude-code)
 #   - For "bedrock": AWS credentials configured
-#   - For "local": SSH tunnel active on localhost:8131 (see scripts/tunnel.sh)
+#   - For "local": SSH tunnel active on localhost:11434 (see scripts/tunnel.sh)
 #   - python3 and pytest installed
 # ---------------------------------------------------------------------------
 
@@ -309,18 +309,18 @@ _reset_sample() {
 _setup_backend() {
     local backend="$1"
     if [[ "$backend" == "local" ]]; then
-        if ! curl -sf http://localhost:8131/v1/models >/dev/null 2>&1; then
+        if ! curl -sf http://localhost:11434/v1/models >/dev/null 2>&1; then
             fail "Tunnel not active. Run: ./scripts/tunnel.sh start"
         fi
         local model_id
-        model_id=$(curl -s http://localhost:8131/v1/models | python3 -c \
+        model_id=$(curl -s http://localhost:11434/v1/models | python3 -c \
             "import json,sys; print(json.load(sys.stdin)['data'][0]['id'])" 2>/dev/null || echo "unknown")
         unset CLAUDE_CODE_USE_BEDROCK AWS_PROFILE 2>/dev/null || true
-        export ANTHROPIC_BASE_URL="http://127.0.0.1:8131"
+        export ANTHROPIC_BASE_URL="http://127.0.0.1:11434"
         export ANTHROPIC_AUTH_TOKEN="local"
         export ANTHROPIC_MODEL="$model_id"
         unset ANTHROPIC_API_KEY 2>/dev/null || true
-        info "Backend: local model ($model_id) via localhost:8131"
+        info "Backend: local model ($model_id) via localhost:11434"
     elif [[ "$backend" == "bedrock" ]]; then
         unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL ANTHROPIC_API_KEY 2>/dev/null || true
         export CLAUDE_CODE_USE_BEDROCK=1
@@ -427,7 +427,7 @@ _run_task() {
 
     local exit_code=0
     if [[ "$backend" == "local" ]]; then
-        ANTHROPIC_BASE_URL="http://127.0.0.1:8131" \
+        ANTHROPIC_BASE_URL="http://127.0.0.1:11434" \
         ANTHROPIC_AUTH_TOKEN="local" \
         ANTHROPIC_MODEL="${ANTHROPIC_MODEL:-local}" \
         claude -p "$prompt" \
@@ -547,7 +547,7 @@ main() {
         echo "Usage: $0 {bedrock|local|both}"
         echo ""
         echo "  bedrock   — Claude via Amazon Bedrock"
-        echo "  local     — Open-source model via SSH tunnel (localhost:8131)"
+        echo "  local     — Open-source model via SSH tunnel (localhost:11434)"
         echo "  both      — Run both and compare"
         echo ""
         echo "9 coding tasks x${RUNS} runs = $((9*RUNS)) total. Results saved to results/"

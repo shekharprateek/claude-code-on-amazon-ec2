@@ -2,18 +2,18 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# tunnel.sh — Manage SSH tunnel to g6e llama-server
+# tunnel.sh — Manage SSH tunnel to GPU server running Ollama
 #
 # Usage:
-#   ./tunnel.sh start    # Open tunnel (localhost:8131 → g6e:8131)
+#   ./tunnel.sh start    # Open tunnel (localhost:11434 → ec2:11434)
 #   ./tunnel.sh stop     # Close tunnel
 #   ./tunnel.sh status   # Check if tunnel is active
 # ---------------------------------------------------------------------------
 
 G6E_IP="${G6E_IP:-}"
 KEY="${G6E_KEY:-$HOME/.ssh/id_rsa}"
-LOCAL_PORT=8131
-REMOTE_PORT=8131
+LOCAL_PORT=11434
+REMOTE_PORT=11434
 
 if [[ "${1:-status}" == "start" ]] && [[ -z "$G6E_IP" ]]; then
     echo "Error: G6E_IP not set. Export it first:"
@@ -32,7 +32,7 @@ case "${1:-status}" in
         ssh -N -f -L $LOCAL_PORT:localhost:$REMOTE_PORT -i "$KEY" ubuntu@"$G6E_IP"
         sleep 2
         if curl -sf http://localhost:$LOCAL_PORT/v1/models >/dev/null 2>&1; then
-            echo "Tunnel active. Qwen 3.5 reachable at http://localhost:$LOCAL_PORT"
+            echo "Tunnel active. Model reachable at http://localhost:$LOCAL_PORT"
         else
             echo "Tunnel opened but model not responding. Check g6e instance."
         fi
@@ -49,13 +49,13 @@ case "${1:-status}" in
         ;;
     status)
         if curl -sf http://localhost:$LOCAL_PORT/v1/models >/dev/null 2>&1; then
-            echo "Tunnel active. Qwen 3.5 responding on localhost:$LOCAL_PORT"
+            echo "Tunnel active. Model responding on localhost:$LOCAL_PORT"
             curl -s http://localhost:$LOCAL_PORT/v1/models | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
-model = data.get('data', [{}])[0]
-print(f\"  Model: {model.get('id', 'unknown')}\")
-print(f\"  Params: {model.get('meta', {}).get('n_params', 'unknown'):,}\")
+models = data.get('data', [])
+for m in models:
+    print(f\"  Model: {m.get('id', 'unknown')}\")
 "
         else
             echo "No tunnel or model not responding on localhost:$LOCAL_PORT"

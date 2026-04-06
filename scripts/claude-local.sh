@@ -27,9 +27,9 @@ _restore() {
 trap _restore EXIT INT TERM
 
 # Check tunnel
-if ! curl -sf http://localhost:8131/v1/models >/dev/null 2>&1; then
-    echo "[error] Qwen not reachable on localhost:8131."
-    echo "        Start tunnel: ~/llm-benchmark-lab/scripts/tunnel.sh start"
+if ! curl -sf http://localhost:11434/v1/models >/dev/null 2>&1; then
+    echo "[error] Ollama not reachable on localhost:11434."
+    echo "        Start tunnel: ./scripts/tunnel.sh start"
     exit 1
 fi
 
@@ -42,13 +42,13 @@ cat > "$CLAUDE_SETTINGS" << 'SETTINGS'
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8131",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:11434",
     "ANTHROPIC_AUTH_TOKEN": "local",
-    "ANTHROPIC_MODEL": "unsloth/qwen3.5-35b-a3b",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "unsloth/qwen3.5-35b-a3b",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "unsloth/qwen3.5-35b-a3b",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "unsloth/qwen3.5-35b-a3b",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "unsloth/qwen3.5-35b-a3b",
+    "ANTHROPIC_MODEL": "qwen3.5:35b",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3.5:35b",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3.5:35b",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "qwen3.5:35b",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "qwen3.5:35b",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "128000",
     "DISABLE_PROMPT_CACHING": "1",
     "DISABLE_AUTOUPDATER": "1",

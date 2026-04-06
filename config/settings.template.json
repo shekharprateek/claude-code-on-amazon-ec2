@@ -13,7 +13,7 @@
     "DISABLE_AUTOUPDATER": "1",
     "DISABLE_TELEMETRY": "1",
     "DISABLE_ERROR_REPORTING": "1",
-    "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "qwen3.5:35b"
+    "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1"
   },
   "permissions": {
     "allow": [
