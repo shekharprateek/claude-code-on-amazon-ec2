@@ -43,7 +43,7 @@ cat > "$CLAUDE_SETTINGS" << 'SETTINGS'
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
     "ANTHROPIC_BASE_URL": "http://127.0.0.1:11434",
-    "ANTHROPIC_AUTH_TOKEN": "local",
+    "ANTHROPIC_API_KEY": "sk-ant-local-key-not-used",
     "ANTHROPIC_MODEL": "qwen3.5:35b",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3.5:35b",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "qwen3.5:35b",
@@ -75,7 +75,7 @@ cat > "$CLAUDE_SETTINGS" << 'SETTINGS'
 SETTINGS
 
 echo "[swap] Loaded Qwen 3.5 local settings."
-echo "[info] Starting Claude Code → Qwen 3.5 (localhost:8131)"
+echo "[info] Starting Claude Code → Qwen 3.5 (localhost:11434)"
 echo ""
 
 # Launch claude with all args passed through
