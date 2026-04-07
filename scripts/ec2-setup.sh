@@ -76,7 +76,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-header "Step 4 — Verify"
+header "Step 4 — Create Claude model alias"
+# ---------------------------------------------------------------------------
+# Claude Code sends model names like 'claude-3-5-sonnet-20241022' to the API.
+# Creating an alias lets Ollama accept those requests and route to the local model.
+info "Creating alias: claude-3-5-sonnet-20241022 → $MODEL"
+ollama cp "$MODEL" claude-3-5-sonnet-20241022
+ok "Alias created"
+
+# ---------------------------------------------------------------------------
+header "Step 5 — Verify"
 # ---------------------------------------------------------------------------
 info "Sending test prompt to verify GPU inference..."
 
