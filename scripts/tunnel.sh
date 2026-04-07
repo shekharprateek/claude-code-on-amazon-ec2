@@ -2,23 +2,30 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# tunnel.sh — Manage SSH tunnel to GPU server running Ollama
+# tunnel.sh — Manage SSH tunnel to EC2 GPU instance running Ollama
 #
 # Usage:
-#   ./tunnel.sh start    # Open tunnel (localhost:11434 → ec2:11434)
+#   ./tunnel.sh start    # Open tunnel (localhost:$LOCAL_MODEL_PORT → ec2:$LOCAL_MODEL_PORT)
 #   ./tunnel.sh stop     # Close tunnel
 #   ./tunnel.sh status   # Check if tunnel is active
+#
+# Environment variables:
+#   G6E_IP             Required for start — public IP of the EC2 GPU instance
+#   G6E_KEY            Path to SSH key (default: ~/.ssh/id_rsa)
+#   LOCAL_MODEL_PORT   Local port to forward (default: 11434 for Ollama, 8131 for llama.cpp)
 # ---------------------------------------------------------------------------
 
 G6E_IP="${G6E_IP:-}"
 KEY="${G6E_KEY:-$HOME/.ssh/id_rsa}"
-LOCAL_PORT=11434
-REMOTE_PORT=11434
+LOCAL_PORT="${LOCAL_MODEL_PORT:-11434}"
+REMOTE_PORT="${LOCAL_MODEL_PORT:-11434}"
 
 if [[ "${1:-status}" == "start" ]] && [[ -z "$G6E_IP" ]]; then
     echo "Error: G6E_IP not set. Export it first:"
-    echo "  export G6E_IP=<your-gpu-server-ip>"
+    echo "  export G6E_IP=<your-ec2-instance-public-ip>"
     echo "  export G6E_KEY=<path-to-your-key.pem>  # optional, defaults to ~/.ssh/id_rsa"
+    echo ""
+    echo "  For llama.cpp (port 8131): LOCAL_MODEL_PORT=8131 ./tunnel.sh start"
     exit 1
 fi
 
@@ -34,7 +41,7 @@ case "${1:-status}" in
         if curl -sf http://localhost:$LOCAL_PORT/v1/models >/dev/null 2>&1; then
             echo "Tunnel active. Model reachable at http://localhost:$LOCAL_PORT"
         else
-            echo "Tunnel opened but model not responding. Check g6e instance."
+            echo "Tunnel opened but model not responding. Check the EC2 instance (is Ollama/llama-server running?)."
         fi
         ;;
     stop)

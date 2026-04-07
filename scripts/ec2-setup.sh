@@ -119,9 +119,11 @@ echo "  Model:      $MODEL"
 echo "  Serving at: http://localhost:$PORT"
 echo "  API:        http://localhost:$PORT/v1 (OpenAI-compatible)"
 echo ""
-echo "Next step — open SSH tunnel from your local machine:"
+THIS_IP=$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "<this-instance-public-ip>")
+
+echo "Next step — run these commands on your local machine to open the SSH tunnel:"
 echo ""
-echo "  export G6E_IP=$(curl -sf http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo '<this-instance-ip>')"
+echo "  export G6E_IP=${THIS_IP}"
 echo "  export G6E_KEY=~/.ssh/<your-key>.pem"
 echo "  ./scripts/tunnel.sh start"
 echo ""

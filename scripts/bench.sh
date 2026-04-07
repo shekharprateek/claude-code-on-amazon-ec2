@@ -6,8 +6,11 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/bench.sh bedrock    # Test A: Claude via Amazon Bedrock
-#   ./scripts/bench.sh local      # Test B: local model via SSH tunnel (localhost:11434)
+#   ./scripts/bench.sh local      # Test B: local model via SSH tunnel (default port 11434)
 #   ./scripts/bench.sh both       # Run both back-to-back
+#
+# For llama.cpp (port 8131):
+#   LOCAL_MODEL_PORT=8131 ./scripts/bench.sh local
 #
 # Runs 9 coding tasks against the sample/ project in this repo.
 # Each task has an automated pass/fail verifier.
@@ -25,6 +28,9 @@ REPO_DIR="$(dirname "$SCRIPT_DIR")"
 SAMPLE_DIR="$REPO_DIR/sample"
 RESULTS_DIR="$REPO_DIR/results"
 RUNS=3
+
+# Port for the local model server. Override for llama.cpp: LOCAL_MODEL_PORT=8131 ./bench.sh local
+LOCAL_MODEL_PORT="${LOCAL_MODEL_PORT:-11434}"
 
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -318,18 +324,17 @@ _reset_sample() {
 _setup_backend() {
     local backend="$1"
     if [[ "$backend" == "local" ]]; then
-        if ! curl -sf http://localhost:11434/v1/models >/dev/null 2>&1; then
-            fail "Tunnel not active. Run: ./scripts/tunnel.sh start"
+        if ! curl -sf "http://localhost:${LOCAL_MODEL_PORT}/v1/models" >/dev/null 2>&1; then
+            fail "Model server not reachable on localhost:${LOCAL_MODEL_PORT}. Run: ./scripts/tunnel.sh start"
         fi
         local model_id
-        model_id=$(curl -s http://localhost:11434/v1/models | python3 -c \
+        model_id=$(curl -s "http://localhost:${LOCAL_MODEL_PORT}/v1/models" | python3 -c \
             "import json,sys; print(json.load(sys.stdin)['data'][0]['id'])" 2>/dev/null || echo "unknown")
         unset CLAUDE_CODE_USE_BEDROCK AWS_PROFILE 2>/dev/null || true
-        export ANTHROPIC_BASE_URL="http://127.0.0.1:11434"
-        export ANTHROPIC_AUTH_TOKEN="local"
+        export ANTHROPIC_BASE_URL="http://127.0.0.1:${LOCAL_MODEL_PORT}"
+        export ANTHROPIC_API_KEY="local"
         export ANTHROPIC_MODEL="$model_id"
-        unset ANTHROPIC_API_KEY 2>/dev/null || true
-        info "Backend: local model ($model_id) via localhost:11434"
+        info "Backend: local model ($model_id) via localhost:${LOCAL_MODEL_PORT}"
     elif [[ "$backend" == "bedrock" ]]; then
         unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL ANTHROPIC_API_KEY 2>/dev/null || true
         export CLAUDE_CODE_USE_BEDROCK=1
@@ -436,8 +441,8 @@ _run_task() {
 
     local exit_code=0
     if [[ "$backend" == "local" ]]; then
-        ANTHROPIC_BASE_URL="http://127.0.0.1:11434" \
-        ANTHROPIC_AUTH_TOKEN="local" \
+        ANTHROPIC_BASE_URL="http://127.0.0.1:${LOCAL_MODEL_PORT}" \
+        ANTHROPIC_API_KEY="local" \
         ANTHROPIC_MODEL="${ANTHROPIC_MODEL:-local}" \
         claude -p "$prompt" \
             --output-format json \
@@ -556,7 +561,7 @@ main() {
         echo "Usage: $0 {bedrock|local|both}"
         echo ""
         echo "  bedrock   — Claude via Amazon Bedrock"
-        echo "  local     — Open-source model via SSH tunnel (localhost:11434)"
+        echo "  local     — Open-source model via SSH tunnel (localhost:${LOCAL_MODEL_PORT})"
         echo "  both      — Run both and compare"
         echo ""
         echo "9 coding tasks x${RUNS} runs = $((9*RUNS)) total. Results saved to results/"
