@@ -182,7 +182,7 @@ local model, then restores your original config when you exit:
 Or manually set the env and run:
 ```bash
 ANTHROPIC_BASE_URL=http://127.0.0.1:8131 \
-ANTHROPIC_AUTH_TOKEN=local \
+ANTHROPIC_API_KEY=local \
 claude
 ```
 
