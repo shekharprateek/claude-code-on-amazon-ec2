@@ -3,7 +3,6 @@
 [![License: MIT-0](https://img.shields.io/badge/License-MIT--0-yellow.svg)](LICENSE)
 [![Ollama](https://img.shields.io/badge/Ollama-compatible-blue)](https://ollama.com)
 [![Model: Qwen 3.5](https://img.shields.io/badge/Model-Qwen%203.5--35B-orange)](https://ollama.com/library/qwen3.5)
-[![Any cloud companion](https://img.shields.io/badge/Any%20GPU%20Server-companion%20repo-brightgreen)](https://github.com/shekharprateek/claude-code-on-self-hosted-llm)
 
 > **This is sample code intended for demonstration and learning purposes only.**
 > It is not meant for production use. Review and harden all scripts, configurations,
