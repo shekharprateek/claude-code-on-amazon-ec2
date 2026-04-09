@@ -62,6 +62,7 @@ cost-effective for sustained daily use.
 | [scripts/tunnel.sh](scripts/tunnel.sh) | Opens and closes the SSH tunnel between your machine and EC2 |
 | [scripts/claude-local.sh](scripts/claude-local.sh) | Launches Claude Code pointed at the local model, restores config on exit |
 | [scripts/bench.sh](scripts/bench.sh) | Benchmarks local model vs Amazon Bedrock side by side |
+| [BENCHMARK.md](BENCHMARK.md) | Full benchmark guide: tasks, verification, and result interpretation |
 | [config/settings.template.json](config/settings.template.json) | Claude Code configuration template |
 | [SETUP-GUIDE.md](SETUP-GUIDE.md) | Advanced walkthrough using llama.cpp directly (more tuning control) |
 
@@ -153,11 +154,15 @@ nvidia-smi --query-gpu=utilization.gpu,memory.used,temperature.gpu \
 
 ## Benchmark vs Amazon Bedrock
 
-Run the same coding tasks against both backends and compare:
+Run 9 coding tasks against both backends and compare quality and speed:
 
 ```bash
 ./scripts/bench.sh both
 ```
+
+9 tasks across 3 tiers (simple → medium → complex), each with an automated pass/fail verifier.
+See [BENCHMARK.md](BENCHMARK.md) for the full task descriptions, how verification works,
+and how to read the results.
 
 ## Tear Down
 
