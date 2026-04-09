@@ -336,7 +336,7 @@ _setup_backend() {
         export ANTHROPIC_MODEL="$model_id"
         info "Backend: local model ($model_id) via localhost:${LOCAL_MODEL_PORT}"
     elif [[ "$backend" == "bedrock" ]]; then
-        unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_MODEL ANTHROPIC_API_KEY 2>/dev/null || true
+        unset ANTHROPIC_BASE_URL ANTHROPIC_API_KEY ANTHROPIC_MODEL 2>/dev/null || true
         export CLAUDE_CODE_USE_BEDROCK=1
         if ! aws sts get-caller-identity >/dev/null 2>&1; then
             fail "AWS credentials not configured."
