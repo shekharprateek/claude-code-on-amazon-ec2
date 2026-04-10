@@ -1,5 +1,9 @@
 """
 FastAPI application entry point.
+
+Note: For production deployments, add CORSMiddleware with restricted origins
+and security headers (X-Content-Type-Options, X-Frame-Options,
+Strict-Transport-Security, etc.).
 """
 
 from fastapi import FastAPI

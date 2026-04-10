@@ -2,9 +2,14 @@ results/
 FINDINGS.md
 PLAN.md
 *.pem
+*.key
 *.log
 .env
 .env.*
 .scratchpad/
 __pycache__/
 *.pyc
+credentials.json
+.aws/
+secrets/
+security-review-findings.xlsx
