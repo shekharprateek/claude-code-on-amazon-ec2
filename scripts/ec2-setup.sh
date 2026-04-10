@@ -4,13 +4,10 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # ec2-setup.sh — One-shot setup for the GPU server (g6e.xlarge or similar)
 #
-# Run this on the EC2 GPU instance after launch:
+# Recommended: clone the repo and run locally rather than piping from curl:
 #
-#   curl -fsSL https://raw.githubusercontent.com/shekharprateek/claude-code-on-amazon-ec2/main/scripts/ec2-setup.sh | bash
-#
-# Or clone the repo and run:
-#
-#   bash scripts/ec2-setup.sh
+#   git clone <repo-url> ~/claude-code-on-amazon-ec2
+#   bash ~/claude-code-on-amazon-ec2/scripts/ec2-setup.sh
 #
 # What it does:
 #   1. Installs Ollama
@@ -20,6 +17,13 @@ set -euo pipefail
 # Usage:
 #   bash ec2-setup.sh                    # Default: qwen3.5:35b
 #   MODEL=qwen3.5:7b bash ec2-setup.sh  # Smaller model (fits in 8GB VRAM)
+#
+# Security note:
+#   This script downloads and runs the Ollama installer from ollama.com.
+#   Review the installer before running in sensitive environments:
+#     curl -fsSL https://ollama.com/install.sh -o ollama-install.sh
+#     less ollama-install.sh
+#     bash ollama-install.sh
 # ---------------------------------------------------------------------------
 
 MODEL="${MODEL:-qwen3.5:35b}"
@@ -50,6 +54,8 @@ if command -v ollama &>/dev/null; then
     ok "Ollama already installed: $(ollama --version)"
 else
     info "Installing Ollama..."
+    # NOTE: This pipes a remote script to sh. For auditable installs, download
+    # the script first, review it, then run: bash ollama-install.sh
     curl -fsSL https://ollama.com/install.sh | sh
     ok "Ollama installed: $(ollama --version)"
 fi
@@ -80,8 +86,8 @@ header "Step 4 — Verify"
 # ---------------------------------------------------------------------------
 info "Sending test prompt to verify GPU inference..."
 
-RESPONSE=$(curl -sf --max-time 120 "http://localhost:$PORT/api/generate" \
-    -d "{\"model\":\"$MODEL\",\"prompt\":\"Reply with: ready\",\"stream\":false}" 2>/dev/null || echo "")
+RESPONSE=$(curl -sf --max-time 120 "http://localhost:${PORT}/api/generate" \
+    -d "{\"model\":\"${MODEL}\",\"prompt\":\"Reply with: ready\",\"stream\":false}" 2>/dev/null || echo "")
 
 if [[ -z "$RESPONSE" ]]; then
     fail "No response from Ollama after 120s. Check: journalctl -u ollama -n 50"
@@ -110,13 +116,14 @@ echo "  Model:      $MODEL"
 echo "  Serving at: http://localhost:$PORT"
 echo "  API:        http://localhost:$PORT/v1 (OpenAI-compatible)"
 echo ""
+THIS_IP=""
 TOKEN=$(curl -sf -X PUT "http://169.254.169.254/latest/api/token" \
     -H "X-aws-ec2-metadata-token-ttl-seconds: 60" 2>/dev/null || echo "")
 if [[ -n "$TOKEN" ]]; then
     THIS_IP=$(curl -sf -H "X-aws-ec2-metadata-token: $TOKEN" \
         http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "")
 fi
-# Fallback to ifconfig.me if IMDSv2 fails or no public IP (e.g. private subnet)
+# Fallback to checkip.amazonaws.com if IMDSv2 fails or no public IP (e.g. private subnet)
 [[ -z "$THIS_IP" ]] && THIS_IP=$(curl -sf --max-time 5 https://checkip.amazonaws.com 2>/dev/null || echo "<your-instance-public-ip>")
 
 echo "Next step — run these commands on your local machine to open the SSH tunnel:"

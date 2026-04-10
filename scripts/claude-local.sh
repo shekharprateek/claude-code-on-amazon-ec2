@@ -19,6 +19,9 @@ LOCAL_MODEL_PORT="${LOCAL_MODEL_PORT:-11434}"
 CLAUDE_SETTINGS="$HOME/.claude/settings.json"
 BACKUP_FILE="$HOME/.claude/settings.json.backup.$$"   # PID-scoped: safe for concurrent sessions
 
+# Restrict file creation permissions — backup contains config data
+umask 077
+
 # Restore original settings on exit (even on Ctrl+C)
 _restore() {
     if [[ -f "$BACKUP_FILE" ]]; then
@@ -83,9 +86,9 @@ cat > "$CLAUDE_SETTINGS" << EOF
       "Bash(python *)", "Bash(python3 *)", "Bash(pip *)", "Bash(pip3 *)",
       "Bash(ls *)", "Bash(cat *)", "Bash(head *)", "Bash(tail *)",
       "Bash(find *)", "Bash(grep *)", "Bash(rg *)", "Bash(mkdir *)",
-      "Bash(cp *)", "Bash(mv *)", "Bash(echo *)", "Bash(curl *)",
+      "Bash(cp *)", "Bash(mv *)", "Bash(echo *)",
       "Bash(which *)", "Bash(pwd)", "Bash(wc *)", "Bash(sort *)",
-      "Bash(diff *)", "Bash(chmod *)", "Bash(touch *)",
+      "Bash(diff *)", "Bash(touch *)",
       "Read", "Edit", "Write", "Glob", "Grep"
     ],
     "deny": [
