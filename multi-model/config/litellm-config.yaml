@@ -1,0 +1,146 @@
+# LiteLLM Proxy Config — Multi-Model Support for Claude Code
+#
+# This proxy translates the Anthropic Messages API (Claude Code) to the
+# OpenAI Chat Completions API used by third-party models on Bedrock and
+# self-hosted models via Ollama.
+#
+# Anthropic models (Claude) do NOT need this proxy — use CLAUDE_CODE_USE_BEDROCK=1 directly.
+#
+# Usage: litellm --config config/litellm-config.yaml --port 4000
+
+model_list:
+  # ── Qwen (Coding) ──────────────────────────────────────────────
+  - model_name: qwen-coder-next
+    litellm_params:
+      model: bedrock/qwen.qwen3-coder-next
+      aws_region_name: us-east-1
+
+  # qwen-coder-480b is not yet available in Bedrock — omitted until GA
+  # - model_name: qwen-coder-480b
+
+  - model_name: qwen-coder-30b
+    litellm_params:
+      model: bedrock/qwen.qwen3-coder-30b-a3b-v1:0
+      aws_region_name: us-east-1
+
+  # ── Qwen (General / Vision) ────────────────────────────────────
+  # qwen-235b is not yet available in Bedrock — omitted until GA
+  # - model_name: qwen-235b
+
+  - model_name: qwen-32b
+    litellm_params:
+      model: bedrock/qwen.qwen3-32b-v1:0
+      aws_region_name: us-east-1
+
+  - model_name: qwen-vl-235b
+    litellm_params:
+      model: bedrock/qwen.qwen3-vl-235b-a22b
+      aws_region_name: us-east-1
+
+  - model_name: qwen-next-80b
+    litellm_params:
+      model: bedrock/qwen.qwen3-next-80b-a3b
+      aws_region_name: us-east-1
+
+  # ── DeepSeek ────────────────────────────────────────────────────
+  - model_name: deepseek-v3
+    litellm_params:
+      model: bedrock/deepseek.v3.2
+      aws_region_name: us-east-1
+
+  - model_name: deepseek-r1
+    litellm_params:
+      model: bedrock/us.deepseek.r1-v1:0
+      aws_region_name: us-east-1
+
+  # ── Meta Llama ──────────────────────────────────────────────────
+  - model_name: llama4-maverick
+    litellm_params:
+      model: bedrock/us.meta.llama4-maverick-17b-instruct-v1:0
+      aws_region_name: us-east-1
+    model_info:
+      max_output_tokens: 8192
+      supports_function_calling: false
+
+  - model_name: llama4-scout
+    litellm_params:
+      model: bedrock/us.meta.llama4-scout-17b-instruct-v1:0
+      aws_region_name: us-east-1
+    model_info:
+      max_output_tokens: 8192
+      supports_function_calling: false
+
+  - model_name: llama3-70b
+    litellm_params:
+      model: bedrock/us.meta.llama3-3-70b-instruct-v1:0
+      aws_region_name: us-east-1
+    model_info:
+      max_output_tokens: 8192
+      supports_function_calling: false
+
+  # ── Mistral AI ──────────────────────────────────────────────────
+  - model_name: devstral-123b
+    litellm_params:
+      model: bedrock/mistral.devstral-2-123b
+      aws_region_name: us-east-1
+
+  - model_name: mistral-large-3
+    litellm_params:
+      model: bedrock/mistral.mistral-large-3-675b-instruct
+      aws_region_name: us-east-1
+
+  # ── Amazon Nova ─────────────────────────────────────────────────
+  - model_name: nova-pro
+    litellm_params:
+      model: bedrock/us.amazon.nova-pro-v1:0
+      aws_region_name: us-east-1
+    model_info:
+      max_output_tokens: 5120
+      supports_function_calling: false
+
+  - model_name: nova-lite
+    litellm_params:
+      model: bedrock/us.amazon.nova-lite-v1:0
+      aws_region_name: us-east-1
+    model_info:
+      max_output_tokens: 5120
+      supports_function_calling: false
+
+  # ── Moonshot AI (Kimi) ──────────────────────────────────────────
+  - model_name: kimi-k2.5
+    litellm_params:
+      model: bedrock/moonshotai.kimi-k2.5
+      aws_region_name: us-east-1
+
+  - model_name: kimi-k2-thinking
+    litellm_params:
+      model: bedrock/moonshot.kimi-k2-thinking
+      aws_region_name: us-east-1
+
+  # ── MiniMax ─────────────────────────────────────────────────────
+  - model_name: minimax-m2.1
+    litellm_params:
+      model: bedrock/minimax.minimax-m2.1
+      aws_region_name: us-east-1
+
+  # ── Self-Hosted (Ollama via SSH tunnel) ─────────────────────────
+  # Uncomment these if you have an Ollama server running via SSH tunnel.
+  # Start tunnel first: SSH_KEY=~/.ssh/key GPU_SERVER_IP=x.x.x.x ./scripts/tunnel.sh start
+  #
+  # - model_name: qwen-local
+  #   litellm_params:
+  #     model: openai/qwen3.5:35b
+  #     api_base: http://localhost:11434/v1
+  #     api_key: local
+  #
+  # - model_name: deepseek-local
+  #   litellm_params:
+  #     model: openai/deepseek-r1:32b
+  #     api_base: http://localhost:11434/v1
+  #     api_key: local
+
+litellm_settings:
+  drop_params: true          # drop unsupported params instead of erroring
+  num_retries: 2
+  request_timeout: 300       # 5 min for large models
+  modify_params: true        # allow per-model param overrides to cap max_tokens
