@@ -12,22 +12,38 @@ Claude Code → LiteLLM Proxy (:4000) → Amazon Bedrock → Any Model
 
 ## Supported Models
 
-| Alias | Provider | Best For |
-|-------|----------|----------|
-| `qwen-coder-next` | Qwen | Code generation |
-| `qwen-coder-30b` | Qwen | Fast coding |
-| `qwen-32b` | Qwen | General purpose |
-| `qwen-vl-235b` | Qwen | Vision + language |
-| `qwen-next-80b` | Qwen | Efficient MoE |
-| `deepseek-v3` | DeepSeek | Coding + reasoning |
-| `deepseek-r1` | DeepSeek | Chain-of-thought |
-| `devstral-123b` | Mistral | Code specialist |
-| `mistral-large-3` | Mistral | Flagship MoE |
-| `kimi-k2.5` | Moonshot AI | Coding + reasoning |
-| `kimi-k2-thinking` | Moonshot AI | Chain-of-thought |
-| `minimax-m2.1` | MiniMax | General purpose |
-| `nova-pro` | Amazon | Multimodal |
-| `nova-lite` | Amazon | Fast, lightweight |
+### Fully Working
+
+These models are tested end-to-end with Claude Code via the LiteLLM proxy:
+
+| Alias | Provider | Best For | Status |
+|-------|----------|----------|--------|
+| `qwen-coder-next` | Qwen | Code generation | ✅ |
+| `qwen-coder-30b` | Qwen | Fast coding | ✅ |
+| `qwen-32b` | Qwen | General purpose | ✅ |
+| `qwen-vl-235b` | Qwen | Vision + language | ✅ |
+| `qwen-next-80b` | Qwen | Efficient MoE | ✅ |
+| `deepseek-v3` | DeepSeek | Coding + reasoning | ✅ |
+| `deepseek-r1` | DeepSeek | Chain-of-thought | ✅ |
+| `devstral-123b` | Mistral | Code specialist | ✅ |
+| `mistral-large-3` | Mistral | Flagship MoE | ✅ |
+| `kimi-k2.5` | Moonshot AI | Coding + reasoning | ✅ |
+| `kimi-k2-thinking` | Moonshot AI | Chain-of-thought | ✅ |
+| `minimax-m2.1` | MiniMax | General purpose | ✅ |
+
+### Limited Support
+
+These models work via direct API (curl) but fail with Claude Code due to a Bedrock limitation — they reject requests that combine streaming with tool definitions, which Claude Code always sends together.
+
+| Alias | Provider | Best For | Status |
+|-------|----------|----------|--------|
+| `llama4-scout` | Meta | Efficient MoE | ⚠️ No streaming + tools |
+| `llama4-maverick` | Meta | Multimodal chat | ⚠️ No streaming + tools |
+| `llama3-70b` | Meta | General purpose | ⚠️ No streaming + tools |
+| `nova-pro` | Amazon | Multimodal | ⚠️ No streaming + tools |
+| `nova-lite` | Amazon | Fast, lightweight | ⚠️ No streaming + tools |
+
+> **Note:** Llama and Nova models can still be used via direct curl calls to the proxy. The limitation is specific to Claude Code's streaming + tool use request pattern.
 
 ## Quick Start
 
