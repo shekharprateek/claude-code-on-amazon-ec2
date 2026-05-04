@@ -169,3 +169,7 @@ and how to read the results.
 aws ec2 terminate-instances --region us-east-1 --instance-ids <instance-id>
 aws ec2 delete-security-group --region us-east-1 --group-id <sg-id>
 ```
+
+## See Also
+
+- **[Claude Code Multi-Model on Amazon Bedrock](https://github.com/shekharprateek/claude-code-multi-model-bedrock)** — Run Claude Code with 43 models from 12 providers (Qwen, DeepSeek, Mistral, Kimi, MiniMax, and more) via Bedrock Mantle. No GPU needed — fully managed.
